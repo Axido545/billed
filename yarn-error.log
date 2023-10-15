@@ -1,0 +1,40 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Users\Sabrina\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add -D jest
+
+PATH: 
+  C:\Users\Sabrina\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\local\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\Sabrina\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\OpenSSH;C:\Program Files\nodejs;C:\Program Files\Git\cmd;C:\Users\Sabrina\AppData\Local\Microsoft\WindowsApps;C:\Users\Sabrina\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\Sabrina\AppData\Local\GitHubDesktop\bin;C:\Users\Sabrina\AppData\Roaming\npm;C:\Program Files\Git\usr\bin\vendor_perl;C:\Program Files\Git\usr\bin\core_perl
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  18.15.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  SyntaxError: C:\Users\Sabrina\Documents\SabrinaMekbel\DEVfront\P9\bill-app\package.json: Unexpected token { in JSON at position 53
+      at JSON.parse (<anonymous>)
+      at C:\Users\Sabrina\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:1629:59
+      at Generator.next (<anonymous>)
+      at step (C:\Users\Sabrina\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:310:30)
+      at C:\Users\Sabrina\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:321:13
+
+npm manifest: 
+  {
+    "devDependencies": {
+      "jest": "^29.7.0"
+    }
+  }
+  {
+    "scripts": {
+      "test": "jest"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

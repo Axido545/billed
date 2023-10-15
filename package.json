@@ -1,0 +1,14 @@
+{
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "name": "my-project",
+  "jest": {
+    "testEnvironment": "jest-environment-jsdom",
+    "verbose": true
+  },
+  "scripts": {
+    "test": "jest"
+  }
+}
