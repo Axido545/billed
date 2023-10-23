@@ -1,13 +1,33 @@
 {
   "devDependencies": {
+    "@babel/core": "^7.23.2",
+    "@babel/preset-env": "^7.23.2",
     "@testing-library/jest-dom": "^6.1.4",
     "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0"
+    "jest-environment-jsdom": "^29.7.0",
+    "ts-jest": "^29.1.1"
   },
   "name": "billed",
   "jest": {
     "testEnvironment": "jest-environment-jsdom",
-    "verbose": true
+    "verbose": true,
+    "preset": "ts-jest",
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest",
+      "^.+\\.mjs$": "babel-jest"
+    },
+    "transformIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "moduleNameMapper": {},
+    "testRegex": "/__tests__/.*\\.(test|spec)\\.(j|m)?(s)?x?$",
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "mjs",
+      "json",
+      "node"
+    ]
   },
   "scripts": {
     "test": "jest",
