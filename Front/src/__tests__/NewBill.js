@@ -10,7 +10,6 @@ import { ROUTES, ROUTES_PATH } from "../constants/routes"
 import {localStorageMock} from "../__mocks__/localStorage.js";
 import router from "../app/Router"
 
-
 global.alert = jest.fn(); // Définit une fonction factice pour window.alert
 import jsdom from 'jsdom'; //  importation la bibliothèque jsdom, pour simuler un environnement DOM
 import userEvent from '@testing-library/user-event'
@@ -22,7 +21,6 @@ describe("Given I am connected as an employee", () => {
       const html = NewBillUI()
       document.body.innerHTML = html
       
-
       // récupérer les éléments et les remplir( fill out the form)
       // Type de dépense 
       const expenseTypeSelect  = screen.getByTestId("expense-type");
@@ -60,9 +58,6 @@ describe("Given I am connected as an employee", () => {
     })
   })
 })
-
-
-
 
 // test : ajouter un fichier PDF lance une alerte  ( fonction handleChangeFile)
 describe("Given I am on NewBill Page", () => {
@@ -103,7 +98,75 @@ describe("Given I am on NewBill Page", () => {
   });
 });
 
+//test d'integration POST
+describe("Given I am a user connected as Employee", () => {
+
+describe("When an error occurs on API", () => {
+  beforeEach(() => {
+    jest.spyOn(mockStore, "bills")
+    Object.defineProperty(
+        window,
+        'localStorage',
+        { value: localStorageMock }
+    )
+    window.localStorage.setItem('user', JSON.stringify({
+      type: 'Employee',
+    }))
+    const root = document.createElement("div")
+    root.setAttribute("id", "root")
+    document.body.appendChild(root)
+    router()
+    window.onNavigate(ROUTES_PATH.NewBill)
+  })
+  //test erreur 404
+  test("submit form  and fails with 404 message error", async () => {
+
+    mockStore.bills.mockImplementationOnce(() => {
+      return {
+        //si ça ne marche pas mettre update a la place de liste
+        update : () =>  {
+          return Promise.reject(new Error("Erreur 404"))
+        }
+      }})
+
+    document.body.innerHTML = NewBillUI()
+    const billNew = new NewBill({
+      document,
+      onNavigate,
+      store: mockStore,
+      localStorage: window.localStorage})
+
+   // récupération des éléments
+   const myDate = screen.getByTestId("datepicker")
+   const myAmont = screen.getByTestId("amount")
+   const myTva = screen.getByTestId("pct")
+   const myFile = screen.getByTestId("file")
+   const mySubmitButton = document.getElementById("btn-send-bill")
+   //  d'un nouveau fichier
+   const myMewFile = new File(['image.jpg'], 'mon-image.jpg' , { type: "image/jpeg"})
+   const myUpdate = jest.spyOn(mockStore.bills(), 'update')
+
+ //Simuler l'input saisie des infos avec des erreurs
+ fireEvent.change(myDate,{target:{value:'Vanille'}})
+ fireEvent.change(myAmont,{target:{value:'bonbon'}})
+ fireEvent.change(myTva,{target:{value:'chocolade'}})
+ myFile.addEventListener('change',billNew.handleChangeFile)
+ userEvent.upload(myFile,myMewFile);
+ await new Promise(process.nextTick)
+
+ mySubmitButton.addEventListener('click', billNew.handleSubmit)
+ try {
+  await new Promise(process.nextTick);
+  await myUpdate();
+} catch (error) {
+  expect(error).toEqual(new Error("Erreur 404"));
+}
+})
+//test erreur 500
+test("submit form  and fails with 500 message error", async () => {
 
 
+})
+})})
 
 
