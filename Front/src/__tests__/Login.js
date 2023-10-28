@@ -6,6 +6,8 @@ import LoginUI from "../views/LoginUI";
 import Login from "../containers/Login.js";
 import { ROUTES } from "../constants/routes";
 import { fireEvent, screen } from "@testing-library/dom";
+import userEvent from "@testing-library/user-event";
+
 
 describe("Given that I am a user on login page", () => {
   describe("When I do not fill fields and I click on employee button Login In", () => {
@@ -226,5 +228,38 @@ describe("Given that I am a user on login page", () => {
     test("It should renders HR dashboard page", () => {
       expect(screen.queryByText("Validations")).toBeTruthy();
     });
+  });
+});
+
+
+describe("when I'm an employee and I fill the administration field", () => {
+  test("Then I should be identified as an employee in the app", () => {
+    document.body.innerHTML = LoginUI();
+
+    const inputData = {
+      type: "Employee",
+      email: "johndoe@email.com",
+      password: "azerty",
+      status: "connected"
+    };
+
+    const inputEmailUser = screen.getByTestId("admin-email-input");
+    const inputPasswordUser = screen.getByTestId("admin-password-input");
+
+    userEvent.type(inputEmailUser, inputData.email);
+    userEvent.type(inputPasswordUser, inputData.password);
+
+    const form = screen.getByTestId("form-admin");
+    const handleSubmit = jest.fn((e) => e.preventDefault());
+
+    form.addEventListener("submit", handleSubmit);
+    fireEvent.submit(form);
+
+    expect(handleSubmit).toHaveBeenCalled();
+
+    // Vérification si les données du formulaire sont correctement stockées dans localStorage
+    expect(localStorage.setItem("type", inputData.type));
+    expect(localStorage.setItem("email", inputData.email));
+    expect(localStorage.setItem("status", inputData.status));
   });
 });

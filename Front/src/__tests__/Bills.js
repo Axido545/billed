@@ -3,11 +3,13 @@
  */
 
 import '@testing-library/jest-dom'
-import {screen, waitFor} from "@testing-library/dom"
+import { JSDOM } from 'jsdom';
+import {screen, waitFor, render, fireEvent} from "@testing-library/dom"
 import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
 import { ROUTES_PATH} from "../constants/routes.js";
 import {localStorageMock} from "../__mocks__/localStorage.js";
+import Bills from "../containers/Bills.js"
 
 import router from "../app/Router.js";
 
@@ -46,3 +48,59 @@ describe("Given I am connected as an employee", () => {
     })
   })
 })
+
+
+describe("Test of the fonction HandleClickIconEye",()=>{
+test('open the modal',()=> {
+  const dom = new JSDOM();
+  global.document = dom.window.document;
+  // Préparez le composant en le rendant
+  document.body.innerHTML = BillsUI({ data: bills })
+
+
+
+  //Récup un élément avec l'attribut data-testid 
+  const iconEye = screen.queryAllByTestId('icon-eye');
+
+    // S'Assurez-vous qu'il y a au moins un élément avec cet attribut
+    expect(iconEye).not.toHaveLength(0);
+
+     // Sélectionn d' un élément icon-eye exemple le premier du tableau
+  const myIconEye = iconEye[3];
+
+  //Simulation clic sur l'icone
+  fireEvent.click(myIconEye);
+
+  // vérification si modale s'ouvre
+  const modal = screen.getByTestId('tbody')
+  expect(modal).toBeInTheDocument();
+
+})
+
+})
+
+
+// // test d'intégration GET
+describe("Given I am a user connected as Employee", () => {
+  describe("When I navigate to Bills",() => {
+    test("fetches bills from mock API GET", async()=>{
+      localStorage.setItem("user",JSON.stringify({type:"Employee", email :"a@a"}));
+      const root = document.createElement("div")
+      root.setAttribute("id", "root")
+      document.body.append(root)
+      router()
+      window.onNavigate(ROUTES_PATH.Bills)
+      await waitFor(() => screen.getByText("Mes notes de frais"))
+
+      const contentBtnNewBill = screen.getByText("Nouvelle note de frais");
+            expect(contentBtnNewBill).toBeTruthy()
+      const contentType  =  screen.getByText("Type")
+      expect(contentType).toBeTruthy()
+
+    })
+
+
+  })
+
+})
+

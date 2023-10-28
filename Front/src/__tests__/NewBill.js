@@ -5,11 +5,16 @@ import '@testing-library/jest-dom'
 import {render, screen, fireEvent } from "@testing-library/dom"
 import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
+import mockStore from "../__mocks__/store"
+import { ROUTES, ROUTES_PATH } from "../constants/routes"
+import {localStorageMock} from "../__mocks__/localStorage.js";
+import router from "../app/Router"
+
+
 global.alert = jest.fn(); // Définit une fonction factice pour window.alert
 import jsdom from 'jsdom'; //  importation la bibliothèque jsdom, pour simuler un environnement DOM
+import userEvent from '@testing-library/user-event'
 const { JSDOM } = jsdom; //  importation l'objet JSDOM de jsdom, pour créer une instance d'un environnement DOM simulé.
-
-
 // test : remplire le formulaire
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
@@ -97,3 +102,8 @@ describe("Given I am on NewBill Page", () => {
     });
   });
 });
+
+
+
+
+
