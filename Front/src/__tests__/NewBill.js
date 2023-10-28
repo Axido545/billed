@@ -100,7 +100,6 @@ describe("Given I am on NewBill Page", () => {
 
 //test d'integration POST
 describe("Given I am a user connected as Employee", () => {
-
 describe("When an error occurs on API", () => {
   beforeEach(() => {
     jest.spyOn(mockStore, "bills")
@@ -123,7 +122,6 @@ describe("When an error occurs on API", () => {
 
     mockStore.bills.mockImplementationOnce(() => {
       return {
-        //si ça ne marche pas mettre update a la place de liste
         update : () =>  {
           return Promise.reject(new Error("Erreur 404"))
         }
@@ -135,6 +133,50 @@ describe("When an error occurs on API", () => {
       onNavigate,
       store: mockStore,
       localStorage: window.localStorage})
+
+   // récupération des éléments
+   const myDate = screen.getByTestId("datepicker")
+   const myAmont = screen.getByTestId("amount")
+   const myTva = screen.getByTestId("pct")
+   const myFile = screen.getByTestId("file")
+   const mySubmitButton = document.getElementById("btn-send-bill")
+   //  d'un nouveau fichier
+   const myMewFile = new File(['image.jpg'], 'mon-image.jpg' , { type: "image/jpeg"})
+   const myUpdate = jest.spyOn(mockStore.bills(), 'update')
+
+ //Simulation l'input saisie des infos avec des erreurs
+ fireEvent.change(myDate,{target:{value:'Vanille'}})
+ fireEvent.change(myAmont,{target:{value:'bonbon'}})
+ fireEvent.change(myTva,{target:{value:'chocolade'}})
+ myFile.addEventListener('change',billNew.handleChangeFile)
+ userEvent.upload(myFile,myMewFile);
+ await new Promise(process.nextTick)
+
+ mySubmitButton.addEventListener('click', billNew.handleSubmit)
+ try {
+  await new Promise(process.nextTick);
+  await myUpdate();
+} catch (error) {
+  expect(error).toEqual(new Error("Erreur 404"));
+}
+})
+//test erreur 500
+test("submit form  and fails with 500 message error", async () => {
+
+  mockStore.bills.mockImplementationOnce(() => {
+    return {
+      update : () =>  {
+        return Promise.reject(new Error("Erreur 500"))
+      }
+    }
+  })
+
+  document.body.innerHTML = NewBillUI()
+  const billNew = new NewBill({
+    document,
+    onNavigate,
+    store: mockStore,
+    localStorage: window.localStorage})
 
    // récupération des éléments
    const myDate = screen.getByTestId("datepicker")
@@ -159,14 +201,11 @@ describe("When an error occurs on API", () => {
   await new Promise(process.nextTick);
   await myUpdate();
 } catch (error) {
-  expect(error).toEqual(new Error("Erreur 404"));
+  expect(error).toEqual(new Error("Erreur 500"));
 }
 })
-//test erreur 500
-test("submit form  and fails with 500 message error", async () => {
-
-
 })
-})})
+// })
+})/// describe
 
 
