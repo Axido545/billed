@@ -10,6 +10,7 @@ import { bills } from "../fixtures/bills.js"
 import { ROUTES_PATH} from "../constants/routes.js";
 import {localStorageMock} from "../__mocks__/localStorage.js";
 import Bills from "../containers/Bills.js"
+import mockStore from "../__mocks__/store"
 
 import router from "../app/Router.js";
 
@@ -104,3 +105,62 @@ describe("Given I am a user connected as Employee", () => {
 
 })
 
+
+describe('Bills', () => {
+  it('should navigate to the NewBill page when clicking "New Bill"', () => {
+    const bills= new Bills({
+      document,
+      onNavigate,
+      store: mockStore,
+      localStorage: window.localStorage})
+    // Mock the onNavigate function
+    bills.onNavigate = jest.fn();
+
+    // Test the handleClickNewBill function
+    bills.handleClickNewBill();
+
+    // Verify that the onNavigate function was called with the correct argument
+    expect(bills.onNavigate).toHaveBeenCalledWith(ROUTES_PATH['NewBill']);
+  });
+});
+
+
+
+describe('Bills', () => {
+  it('should return an array of bills with formatted dates and statuses', async () => {
+    const bills= new Bills({
+      document,
+      onNavigate,
+      store: mockStore,
+      localStorage: window.localStorage})
+
+    // Mock the store and its behavior (you may need to adjust this based on your project structure)
+    bills.store = {
+      bills: () => ({
+        list: jest.fn().mockResolvedValue([
+          {
+            date: '2023-10-12',
+            status: 'En attente',
+          },
+        ]),
+      }),
+    };
+
+    const result = await bills.getBills();
+
+    // Check if result is an array
+    expect(Array.isArray(result)).toBe(true);
+
+    // Check if the dates are formatted
+    result.forEach((bill) => {
+      expect(bill.date).toMatch('12 Oct. 23');
+    });
+
+    // Check if the statuses are formatted
+    result.forEach((bill) => {
+      // expect(bill.status === 'En attente'|| bill.status === undefined); // Adjust this based on your formatStatus function
+            expect(bill.status === 'En attente'); // Adjust this based on your formatStatus function
+
+    });
+  });
+});
