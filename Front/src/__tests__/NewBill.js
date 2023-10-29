@@ -14,6 +14,11 @@ global.alert = jest.fn(); // Définit une fonction factice pour window.alert
 import jsdom from 'jsdom'; //  importation la bibliothèque jsdom, pour simuler un environnement DOM
 import userEvent from '@testing-library/user-event'
 const { JSDOM } = jsdom; //  importation l'objet JSDOM de jsdom, pour créer une instance d'un environnement DOM simulé.
+
+import { handleSubmit } from "../containers/NewBill.js"// Assurez-vous d'importer correctement votre fonction
+// Vous devrez également configurer des mocks pour localStorage et onNavigate si nécessaire.
+
+
 // test : remplire le formulaire
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
@@ -188,7 +193,7 @@ test("submit form  and fails with 500 message error", async () => {
    const myMewFile = new File(['image.jpg'], 'mon-image.jpg' , { type: "image/jpeg"})
    const myUpdate = jest.spyOn(mockStore.bills(), 'update')
 
- //Simuler l'input saisie des infos avec des erreurs
+ //Simulation de  l'input saisie des infos avec des erreurs
  fireEvent.change(myDate,{target:{value:'Vanille'}})
  fireEvent.change(myAmont,{target:{value:'bonbon'}})
  fireEvent.change(myTva,{target:{value:'chocolade'}})
@@ -205,7 +210,97 @@ test("submit form  and fails with 500 message error", async () => {
 }
 })
 })
-// })
-})/// describe
+})
+
+// describe('handleSubmit', () => {
+//   // Simulez les dépendances nécessaires
+//   const mockPreventDefault = jest.fn();
+//   const mockOnNavigate = jest.fn();
+//   const mockLocalStorage = {
+//     getItem: jest.fn().mockReturnValue(JSON.stringify({ email: 'user@example.com' })),
+//   };
+
+//   // Réinitialisez les mocks avant chaque test
+//   beforeEach(() => {
+//     const dom = new JSDOM('<!DOCTYPE html>');
+//     global.document = dom.window.document;
+//     mockPreventDefault.mockClear();
+//     mockOnNavigate.mockClear();
+//     mockLocalStorage.getItem.mockClear();
+//   });
+
+//   test('it should handle form submission', () => {
+//     // Configure les mocks
+//     const mockEvent = { preventDefault: mockPreventDefault, target: document.createElement('form') };
+
+//     // Configure les querySelector pour retourner les valeurs nécessaires
+//     mockEvent.target.querySelector = jest.fn()
+//       .mockReturnValueOnce({ value: 'Expense Type Value' })
+//       .mockReturnValueOnce({ value: 'Expense Name Value' })
+//       .mockReturnValueOnce({ value: '2023-12-31' })
+//       .mockReturnValueOnce({ value: '100' })
+//       .mockReturnValueOnce({ value: '20' })
+//       .mockReturnValueOnce({ value: '10' })
+//       .mockReturnValueOnce({ value: 'Commentary Value' });
+
+//     // Exécutez la méthode handleSubmit de NewBill
+//     const newBill = new NewBill({
+//       onNavigate: mockOnNavigate,
+//       localStorage: mockLocalStorage,
+//     });
+//     newBill.handleSubmit(mockEvent);
+
+//     // Vérifiez que les fonctions ont été appelées comme prévu
+//     expect(mockPreventDefault).toHaveBeenCalled();
+//     expect(mockLocalStorage.getItem).toHaveBeenCalledWith('user');
+//     expect(mockOnNavigate).toHaveBeenCalledWith(ROUTES_PATH.Bills);
+
+//     // Vous pouvez également ajouter des assertions pour vérifier le comportement de la méthode handleSubmit si nécessaire.
+//   });
+// });
 
 
+
+// // Mettez en place la configuration de document dans le fichier de configuration global.
+
+// beforeAll(() => {
+//   const dom = new JSDOM('<!DOCTYPE html>');
+//   global.document = dom.window.document;
+// });
+
+// describe('handleSubmit', () => {
+//   test('it should handle form submission', () => {
+//     // Configurez les mocks et les valeurs de l'objet mockEvent comme dans l'exemple précédent.
+
+//     // Créez une instance de NewBill à l'intérieur du test.
+//     const newBill = new NewBill({
+//       onNavigate: jest.fn(),
+//       localStorage: {
+//         getItem: jest.fn().mockReturnValue(JSON.stringify({ email: 'user@example.com' })),
+//       },
+//     });
+
+//     // Exécutez la méthode handleSubmit de NewBill
+//     newBill.handleSubmit(mockEvent);
+
+//     // Vérifiez que les fonctions ont été appelées comme prévu.
+//     expect(mockPreventDefault).toHaveBeenCalled();
+//     expect(newBill.onNavigate).toHaveBeenCalled();
+//     expect(mockLocalStorage.getItem).toHaveBeenCalledWith('user');
+
+//     // Vérifiez que la méthode updateBill est appelée avec les valeurs attendues.
+//     expect(newBill.updateBill).toHaveBeenCalledWith({
+//       email: 'user@example.com',
+//       type: 'Expense Type Value',
+//       name: 'Expense Name Value',
+//       amount: 100,
+//       date: '2023-12-31',
+//       vat: '20',
+//       pct: 10,
+//       commentary: 'Commentary Value',
+//       fileUrl: undefined, // Assurez-vous de configurer les mocks pour ces valeurs si nécessaire
+//       fileName: undefined,
+//       status: 'pending',
+//     });
+//   });
+// });

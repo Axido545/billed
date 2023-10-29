@@ -84,7 +84,7 @@ test('open the modal',()=> {
 describe("Given I am a user connected as Employee", () => {
   describe("When I navigate to Bills",() => {
     test("fetches bills from mock API GET", async()=>{
-      localStorage.setItem("user",JSON.stringify({type:"Employee", email :"a@a"}));
+      localStorage.setItem("user",JSON.stringify({type:"Employee", email :"employee@test.ltd"}));
       const root = document.createElement("div")
       root.setAttribute("id", "root")
       document.body.append(root)
