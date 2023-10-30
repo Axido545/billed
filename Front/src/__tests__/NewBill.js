@@ -76,7 +76,6 @@ describe("Given I am on NewBill Page", () => {
         localStorage: {},
       };
       const newBill = new NewBill(donneesFactices);
-
       // Simulation la sélection d'un fichier PDF non autorisé
       const fileInput = screen.getByTestId("file");
       fireEvent.change(fileInput, {
@@ -175,11 +174,12 @@ test("submit form  and fails with 500 message error", async () => {
       }
     }
   })
+  const mockOnNavigate = jest.fn();
 
   document.body.innerHTML = NewBillUI()
   const billNew = new NewBill({
-    document,
-    onNavigate,
+    document: window.document,
+    onNavigate: mockOnNavigate,
     store: mockStore,
     localStorage: window.localStorage})
 
@@ -261,7 +261,6 @@ test("submit form  and fails with 500 message error", async () => {
 
 
 
-// // Mettez en place la configuration de document dans le fichier de configuration global.
 
 // beforeAll(() => {
 //   const dom = new JSDOM('<!DOCTYPE html>');
@@ -304,3 +303,100 @@ test("submit form  and fails with 500 message error", async () => {
 //     });
 //   });
 // });
+
+
+describe('NewBill', () => {
+  it('should call updateBill with the correct bill object', async () => {
+const mockOnNavigate = jest.fn();
+document.body.innerHTML = NewBillUI()
+const billNew = new NewBill({
+  document: window.document,
+  onNavigate: mockOnNavigate,
+  store: mockStore,
+  localStorage: window.localStorage})
+
+    // Récupération des éléments
+    const myDate = screen.getByTestId('datepicker');
+    const myAmount = screen.getByTestId('amount');
+    const myPct = screen.getByTestId('pct');
+    const myVat = screen.getByTestId('vat');
+    const myFile = screen.getByTestId('file');
+    const myExpenseType = screen.getByTestId('expense-type');
+    const myExpenseName = screen.getByTestId('expense-name');
+    const myCommentary = screen.getByTestId('commentary');
+
+    // Simulation de la saisie des informations
+    fireEvent.change(myDate, { target: { value: '2023-10-10' } });
+    fireEvent.change(myAmount, { target: { value: '300' } });
+    fireEvent.change(myPct, { target: { value: '80' } });
+    fireEvent.change(myVat, { target: { value: '20' } });
+
+    // Simulation du téléchargement d'un fichier
+    const file = new File(['image.jpg'], 'mon-image.jpg', { type: 'image/jpeg' });
+    userEvent.upload(myFile, file);
+
+    // Simulation de la sélection d'un type de dépense
+    fireEvent.change(myExpenseType, { target: { value: 'Transport' } });
+
+    // Simulation de la saisie du nom de la dépense et du commentaire
+    fireEvent.change(myExpenseName, { target: { value: 'Nom de la dépense' } });
+    fireEvent.change(myCommentary, { target: { value: 'Commentaire' } });
+
+    //  mise en place d'un  espion (spy) pour la méthode updateBill
+    const updateBillSpy = jest.spyOn(billNew, 'updateBill');
+
+    // mise en place d'un événement fictif pour simuler le formulaire
+    const fakeEvent = {
+      preventDefault: jest.fn(),
+      target: {
+        querySelector: jest.fn((selector) => {
+          if (selector === 'input[data-testid="datepicker"]') {
+            return myDate;
+          }
+          if (selector === 'select[data-testid="expense-type"]') {
+            return myExpenseType;
+          }
+          if (selector === 'input[data-testid="amount"]') {
+            return myAmount;
+          }
+          if (selector === 'input[data-testid="pct"]') {
+            return myPct;
+          }
+          if (selector === 'input[data-testid="vat"]') {
+            return myVat;
+          }
+          if (selector === 'input[data-testid="expense-name"]') {
+            return myExpenseName;
+          }
+          if (selector === 'textarea[data-testid="commentary"]') {
+            return myCommentary;
+          }
+          if (selector === 'input[data-testid="file"]') {
+            return myFile;
+          }
+        }),
+      },
+    };
+
+    billNew.handleSubmit(fakeEvent);
+
+    const expectedBill = {
+      email: undefined,
+      type: '',
+      date: '2023-10-10', 
+      status: 'pending',
+      name: 'Nom de la dépense',
+      amount: 300,
+      pct: 80,
+      vat: '20',
+      commentary: 'Commentaire',
+      fileUrl: null,
+      fileName : null
+    };
+
+    expect(updateBillSpy).toHaveBeenCalledWith(expectedBill);
+
+    // Restaurez le spy après le test
+    updateBillSpy.mockRestore();
+  });
+});
