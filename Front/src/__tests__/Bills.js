@@ -195,4 +195,108 @@ describe('Given im connected as an employé on Bills page', () => {
 });
 });
 
+// Test unitaire qui vérifie la méthode getBills de la class Bills
+describe('Given im connected as an employé on Bills page', () => {
+describe('When i navigate on Bills page', () => {
+  let billsPage;
+  beforeAll(() => {
+    const mockStore = {
+      bills: jest.fn(() => ({
+        list: jest.fn().mockResolvedValue([
+          {
+            date: '12 Oct. 23',
+            status: undefined,
+          },
+          {
+            date: '15 Oct. 23',
+            status: undefined,
+          },
+        ]),
+      })),
+    };
+    const localStorageMock = {
+      setItem: jest.fn(),
+    };
+    billsPage = new Bills({
+      document: document,
+      onNavigate: jest.fn(),
+      store: mockStore,
+      localStorage: localStorageMock,
+    });
+  });
+  test('Then i should fetch and format bills', async () => {
+    const formattedBills = await billsPage.getBills();
+    expect(formattedBills).toEqual([
+      {
+        date: '12 Oct. 23',
+        status: undefined,
+      },
+      {
+        date: '15 Oct. 23',
+        status: undefined,
+      },
+    ]);
+  });
+});
+});
 
+// test unitaire on clic sur le bouton noouvelle note de frais et on est redirigé  vers la page NewBill
+describe('Given im connected as an employé on Bills page', () => {
+    describe("When I click on 'new bill btn'", () => {
+      test("Then I should be sent on 'NewBill' page", async () => {
+        document.body.innerHTML = BillsUI({ data: bills });
+
+        const onNavigate = (pathname) => {
+          document.body.innerHTML = ROUTES({ pathname });
+        };
+        const store = null;
+        const bill = new Bills({
+          document,
+          onNavigate,
+          store,
+          localStorage: window.localStorage,
+        });
+
+        const buttonNewBill = screen.getByTestId("btn-new-bill");
+        const handleClickNewBill = jest.fn((e) => bill.handleClickNewBill(e));
+        buttonNewBill.addEventListener("click", handleClickNewBill);
+        fireEvent.click(buttonNewBill);
+
+        expect(handleClickNewBill).toHaveBeenCalled();
+        const formNewBill = await waitFor(() => screen.getByTestId("form-new-bill"));
+        expect(formNewBill).toBeTruthy();
+      });
+    });
+  });
+
+// test unitaire on clic sur l'icon oeil une modal s'ouvre avec le justificatif 
+describe('Given im connected as an employé on Bills page', () => {
+    describe("When I click on 'iconEye' ", () => {
+      test("should open a modal with bill proof", async () => {
+        document.body.innerHTML = BillsUI({ data: [bills[0]] });
+
+        const onNavigate = (pathname) => {
+          document.body.innerHTML = ROUTES({ pathname });
+        };
+        const store = null;
+        const bill = new Bills({
+          document,
+          onNavigate,
+          store,
+          localStorage: window.localStorage,
+        });
+
+        await waitFor(() => screen.getAllByTestId("icon-eye")[0]);
+        const iconEye = screen.getAllByTestId("icon-eye")[0];
+        $.fn.modal = jest.fn();
+        const handleClickIconEye = jest.fn(() => bill.handleClickIconEye(iconEye));
+        iconEye.addEventListener("click", handleClickIconEye);
+        fireEvent.click(iconEye);
+
+        expect(handleClickIconEye).toHaveBeenCalled();
+        const proof = screen.getAllByText("Justificatif");
+        expect(proof).toBeDefined();
+        expect($.fn.modal).toHaveBeenCalled();
+      });
+    });
+  });

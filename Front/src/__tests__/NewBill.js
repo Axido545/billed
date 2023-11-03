@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import '@testing-library/jest-dom'
-import {render, screen, fireEvent } from "@testing-library/dom"
+import {render, screen, fireEvent, waitFor, getByTestId } from "@testing-library/dom"
 import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
 import mockStore from "../__mocks__/store"
@@ -306,5 +306,140 @@ const billNew = new NewBill({
 
     // Restaurez le spy après le test
     updateBillSpy.mockRestore();
+  });
+});
+
+
+// Test unitaire vérification de l'icon email s'ile st en surbrillance ( class active)
+describe("Given I am connected as an employee", () => {
+  describe("When I am on the New Bills Page", () => {
+    test("Then the email icon in the vertical layout should be highlighted", async () => {
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Employee'
+      }))
+      const root = document.createElement("div")
+      root.setAttribute("id", "root")
+      document.body.append(root)
+      router()
+      window.onNavigate(ROUTES_PATH.NewBill)
+      await waitFor(() => document.getElementById('layout-icon2'))
+      const emailIconLight = document.getElementById("layout-icon2");
+      
+      if (emailIconLight) {
+        userEvent.click(emailIconLight);
+        expect(emailIconLight.className).toBe("active-icon");
+      } else {
+        console.log('Aucun email icon trouvé ');
+      }
+    })
+  })
+})
+
+
+// test unitaire on clic sur le bouton envoyeron est redirigé  vers la page Bill
+describe('Given im connected as an employé on NewBill page', () => {
+  describe("When I click on 'Envoyer'", () => {
+    test("Then I should be sent on 'Bill' page", async () => {
+      document.body.innerHTML = NewBillUI({ data: NewBill });
+
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+      const store = null;
+      const billnew = new NewBill({
+        document,
+        onNavigate,
+        store,
+        localStorage: window.localStorage,
+      });
+
+
+  // Récupération des éléments
+  const myDate = screen.getByTestId('datepicker');
+  const myAmount = screen.getByTestId('amount');
+  const myPct = screen.getByTestId('pct');
+  const myVat = screen.getByTestId('vat');
+  const myFile = screen.getByTestId('file');
+  const myExpenseType = screen.getByTestId('expense-type');
+  const myExpenseName = screen.getByTestId('expense-name');
+  const myCommentary = screen.getByTestId('commentary');
+
+  // Simulation de la saisie des informations
+  fireEvent.change(myDate, { target: { value: '2023-10-10' } });
+  fireEvent.change(myAmount, { target: { value: '300' } });
+  fireEvent.change(myPct, { target: { value: '80' } });
+  fireEvent.change(myVat, { target: { value: '20' } });
+
+  // Simulation du téléchargement d'un fichier
+  const file = new File(['image.jpg'], 'mon-image.jpg', { type: 'image/jpeg' });
+  userEvent.upload(myFile, file);
+
+  // Simulation de la sélection d'un type de dépense
+  fireEvent.change(myExpenseType, { target: { value: 'Transport' } });
+
+  // Simulation de la saisie du nom de la dépense et du commentaire
+  fireEvent.change(myExpenseName, { target: { value: 'Nom de la dépense' } });
+  fireEvent.change(myCommentary, { target: { value: 'Commentaire' } });
+
+
+   //  mise en place d'un  espion (spy) pour la méthode updateBill
+   const updateBillSpy = jest.spyOn(billnew, 'updateBill');
+
+ // mise en place d'un événement fictif pour simuler le formulaire
+ const fakeEvent = {
+  preventDefault: jest.fn(),
+  target: {
+    querySelector: jest.fn((selector) => {
+      if (selector === 'input[data-testid="datepicker"]') {
+        return myDate;
+      }
+      if (selector === 'select[data-testid="expense-type"]') {
+        return myExpenseType;
+      }
+      if (selector === 'input[data-testid="amount"]') {
+        return myAmount;
+      }
+      if (selector === 'input[data-testid="pct"]') {
+        return myPct;
+      }
+      if (selector === 'input[data-testid="vat"]') {
+        return myVat;
+      }
+      if (selector === 'input[data-testid="expense-name"]') {
+        return myExpenseName;
+      }
+      if (selector === 'textarea[data-testid="commentary"]') {
+        return myCommentary;
+      }
+      if (selector === 'input[data-testid="file"]') {
+        return myFile;
+      }
+    }),
+  },
+};
+
+billnew.handleSubmit(fakeEvent);
+
+const expectedBill = {
+  email: undefined,
+  type: '',
+  date: '2023-10-10', 
+  status: 'pending',
+  name: 'Nom de la dépense',
+  amount: 300,
+  pct: 80,
+  vat: '20',
+  commentary: 'Commentaire',
+  fileUrl: null,
+  fileName : null
+};
+
+expect(updateBillSpy).toHaveBeenCalledWith(expectedBill);
+
+      // expect(handleSubmit).toHaveBeenCalled();
+      const Bill = await waitFor(() => screen.getByText("Mes notes de frais"));
+      expect(Bill).toBeTruthy();
+    });
   });
 });
